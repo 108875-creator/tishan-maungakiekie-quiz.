@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tishan's Maungakiekie Quiz</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f6f3;color:#17231f;font:16px/1.5 system-ui,Segoe UI,sans-serif}
+main{max-width:720px;margin:35px auto;padding:16px}
+header{background:#183d35;color:#fff;border-radius:20px;padding:26px}
+header p{color:#e1eee7}.credit{font-size:.9rem;color:#d0e5d9;margin-top:18px;border-top:1px solid #527269;padding-top:12px}
+.tag{display:inline-block;border-radius:99px;padding:4px 11px;background:#dcefe5;color:#164b38;font-size:.8rem;font-weight:700}
+.card{background:white;border:1px solid #dce5df;border-radius:17px;padding:22px;margin-top:18px}
+.top{display:flex;justify-content:space-between;gap:10px}.track{height:8px;background:#e5ece7;border-radius:9px;overflow:hidden;margin:12px 0 20px}.fill{height:100%;background:#27866a;width:0}
+h1{font-size:2rem;margin:10px 0}h2{font-size:1.35rem;line-height:1.35}
+.option{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;margin:10px 0;border:1px solid #d6e0d9;border-radius:12px;background:white;color:#17231f;font:inherit;cursor:pointer}
+.option.selected{border:2px solid #27866a;background:#eef7f1}.option.correct{border:2px solid #21834c;background:#edf8f0}.option.wrong{border:2px solid #bd4949;background:#fff0f0}
+.letter{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;background:#edf1ee;font-weight:700;flex:none}
+.action{border:0;border-radius:11px;background:#27866a;color:white;font-weight:700;font-size:1rem;padding:13px 18px;cursor:pointer;width:100%;margin-top:12px}.action:disabled{opacity:.4;cursor:not-allowed}
+.feedback{padding:14px;border-radius:12px;background:#f0f3f1;margin-top:14px}.small{color:#5c6b63;font-size:.9rem}.result{text-align:center}.score{font-size:3rem;font-weight:800;color:#27866a}
+</style>
+</head>
+<body>
+<main>
+<header>
+<span class="tag">STUDY MODE · NZ HISTORY</span>
+<h1>Tishan's Maungakiekie Quiz</h1>
+<p>Test your knowledge of Maungakiekie, the obelisk and the tree.</p>
+<div class="credit">Created by <strong>Tishan</strong></div>
+</header>
+<section class="card" id="quiz">
+<div class="top"><strong id="counter">Question 1 of 9</strong><span class="small" id="score">Score: 0</span></div>
+<div class="track"><div class="fill" id="fill"></div></div>
+<p><span class="tag" id="topic"></span></p><h2 id="question"></h2>
+<div id="options"></div><div id="feedback" class="feedback" hidden></div>
+<button class="action" id="check" disabled>Check answer</button>
+</section>
+<section class="card result" id="result" hidden>
+<div class="score" id="finalscore"></div><h2>Quiz complete!</h2><p id="message"></p>
+<button class="action" id="again">Try again</button>
+</section>
+<p class="small" style="text-align:center;margin-top:18px">A history revision quiz made by Tishan.</p>
+</main>
+<script>
+const questions=[
+{t:"Maungakiekie",q:"What is the Māori name for One Tree Hill?",c:["Maungakiekie","Tāmaki Makaurau","Rangitoto"],a:0,e:"Maungakiekie is the Māori name for One Tree Hill."},
+{t:"Maungakiekie",q:"Why is Maungakiekie historically important?",c:["It was only used as a park","It has deep Māori history and significance","It was built by the British"],a:1,e:"Maungakiekie has a long history and deep significance for Māori."},
+{t:"The Obelisk",q:"Who left money in his will for the obelisk to be built?",c:["Mike Smith","Sir John Logan Campbell","Len Brown"],a:1,e:"Sir John Logan Campbell left money in his will for a monument honouring Māori."},
+{t:"The Obelisk",q:"When was construction of the obelisk completed?",c:["1912","1940","1948"],a:1,e:"Construction was completed in 1940; it was officially unveiled in 1948."},
+{t:"The Obelisk",q:"Which set best describes different interpretations of the obelisk?",c:["A memorial to Campbell, colonial dominance, and racial harmony","A war memorial, a church, and a school","A symbol of sport, farming, and tourism"],a:0,e:"The article explores different meanings people have given the obelisk, including these contrasting interpretations."},
+{t:"The Tree",q:"What type of tree stood at the summit before it was removed?",c:["Pōhutukawa","Monterey pine","Kauri"],a:1,e:"The famous lone tree was a Monterey pine."},
+{t:"The Tree",q:"Who damaged the tree in 1994 as an act of protest?",c:["Mike Smith","John Logan Campbell","Len Brown"],a:0,e:"Māori activist Mike Smith damaged the tree as an act of protest."},
+{t:"The Tree",q:"In which year was the old tree finally removed?",c:["1994","1998","2000"],a:2,e:"The tree was removed in 2000 after it had been badly damaged."},
+{t:"The Tree",q:"What was planted at the summit in 2016?",c:["Nine native pōhutukawa and tōtara trees","Three pine trees","One oak tree"],a:0,e:"A group of nine native pōhutukawa and tōtara trees was planted."}
+];
+let n=0,choice=null,score=0,checked=false;
+const el=id=>document.getElementById(id);
+function show(){let q=questions[n];choice=null;checked=false;el("counter").textContent=`Question ${n+1} of ${questions.length}`;el("score").textContent=`Score: ${score}`;el("fill").style.width=`${n/questions.length*100}%`;el("topic").textContent=q.t;el("question").textContent=q.q;el("options").innerHTML="";el("feedback").hidden=true;el("check").disabled=true;el("check").textContent="Check answer";
+q.c.forEach((v,i)=>{let b=document.createElement("button");b.className="option";let letter=document.createElement("span");letter.className="letter";letter.textContent=String.fromCharCode(65+i);let txt=document.createElement("span");txt.textContent=v;b.append(letter,txt);b.onclick=()=>{if(checked)return;choice=i;document.querySelectorAll(".option").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");el("check").disabled=false};el("options").append(b)})}
+el("check").onclick=()=>{if(!checked){if(choice===null)return;checked=true;let q=questions[n];if(choice===q.a)score++;[...document.querySelectorAll(".option")].forEach((b,i)=>{b.disabled=true;if(i===q.a)b.classList.add("correct");else if(i===choice)b.classList.add("wrong")});el("feedback").hidden=false;el("feedback").textContent=(choice===q.a?"Correct! ":"Not quite. ")+q.e;el("score").textContent=`Score: ${score}`;el("check").textContent=n===questions.length-1?"See my results":"Next question"}else{n++;if(n<questions.length)show();else{el("quiz").hidden=true;el("result").hidden=false;el("finalscore").textContent=`${score}/${questions.length}`;el("message").textContent=score===9?"Perfect score! Amazing work.":score>=6?"Great work! Review any tricky questions.":"Good effort. Try again and see if you can improve your score."}}};
+el("again").onclick=()=>{n=0;score=0;el("result").hidden=true;el("quiz").hidden=false;show()};show();
+</script>
+</body></html>
